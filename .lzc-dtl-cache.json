@@ -1,0 +1,53 @@
+{
+  "name": "Walle",
+  "package": "cloud.lazycat.app.walle",
+  "description": "瓦力 Devops开源项目代码部署平台",
+  "homepage": "https://github.com/meolu/walle-web",
+  "author": "meolu",
+  "app_features": [
+    "background_task",
+    "public_path"
+  ],
+  "subdomain": "walle",
+  "version": "2.0.1",
+  "public_paths": [
+    "/"
+  ],
+  "iconPath": "logo.png",
+  "composePath": "docker-compose.yml",
+  "unsupported_platforms": [],
+  "lastRouteType": "from_compose",
+  "port_mappings": {
+    "web_80_80": {
+      "use": true,
+      "type": "http",
+      "path": "/",
+      "targetPath": "/"
+    },
+    "db_3306_3306": {
+      "use": false
+    }
+  },
+  "image_alenx_walle-web_2.1": {
+    "originalImage": "alenx/walle-web:2.1",
+    "pushTarget": "none"
+  },
+  "image_alenx_walle-python_2.1": {
+    "originalImage": "alenx/walle-python:2.1",
+    "pushTarget": "none"
+  },
+  "python_volume_/opt/walle_home/plugins/_action": "emptyDir",
+  "python_volume_/opt/walle_home/plugins/_location": "app_data",
+  "python_volume_/opt/walle_home/codebase/_action": "emptyDir",
+  "python_volume_/opt/walle_home/codebase/_location": "app_data",
+  "python_volume_/opt/walle_home/logs/_action": "emptyDir",
+  "python_volume_/opt/walle_home/logs/_location": "app_data",
+  "python_volume_/root/.ssh/_action": "emptyDir",
+  "python_volume_/root/.ssh/_location": "app_data",
+  "image_mysql": {
+    "originalImage": "mysql",
+    "pushTarget": "none"
+  },
+  "db_volume_/var/lib/mysql_action": "emptyDir",
+  "db_volume_/var/lib/mysql_location": "app_data"
+}
