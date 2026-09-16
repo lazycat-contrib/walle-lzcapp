@@ -1,0 +1,61 @@
+version: 1
+
+project:
+  root: .
+  build_config: lzc-build.yml
+  package_file: package.yml
+  output: .lazycat-build/walle.lpk
+  target_arch: amd64
+
+update:
+  strategy: publish
+  allow_downgrade: false
+  version_source:
+    type: image
+    image: web
+build:
+  run_buildscript: false
+images:
+  # 主应用：上游 walle-web 为两段式 tag（2.0/2.1/2.2）→ custom + 版本映射 {version}.0，排除 latest
+  - id: web
+    target: service
+    service: web
+    source: alenx/walle-web
+    channel: custom
+    sort: semver
+    tag_regex: '^v?\d+\.\d+$'
+    version_regex: '^(?P<version>\d+\.\d+)$'
+    version_template: '{version}.0'
+    delivery:
+      mode: mirror
+  # 辅助 python：同样两段式 tag 家族
+  - id: python
+    target: service
+    service: python
+    source: alenx/walle-python
+    channel: custom
+    sort: semver
+    tag_regex: '^v?\d+\.\d+$'
+    version_regex: '^(?P<version>\d+\.\d+)$'
+    version_template: '{version}.0'
+    delivery:
+      mode: mirror
+  # 辅助 db：mysql 8.0.x 三段式家族（v1 用 latest → 固定 8.0 家族 immutable tag）
+  - id: db
+    target: service
+    service: db
+    source: library/mysql
+    channel: stable
+    sort: semver
+    tag_regex: '^8\.0\.\d+$'
+    delivery:
+      mode: mirror
+stores:
+  official:
+    # Official store publication is intentionally disabled; publish only to Miaomiao Store.
+    enabled: false
+  private:
+    enabled: true
+    skip_if_version_exists: true
+    name: Walle
+    summary: "瓦力 Devops开源项目代码部署平台"

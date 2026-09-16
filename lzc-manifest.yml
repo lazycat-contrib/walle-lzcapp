@@ -1,37 +1,29 @@
-lzc-sdk-version: "0.1"
-name: Walle
-package: cloud.lazycat.app.walle
-version: 2.0.1
-description: 瓦力 Devops开源项目代码部署平台
-homepage: https://github.com/meolu/walle-web
-author: meolu
 application:
   subdomain: walle
   background_task: true
   multi_instance: false
-  gpu_accel: false
-  kvm_accel: false
-  usb_accel: false
   public_path:
     - /
-  routes:
-    - /=http://web.cloud.lazycat.app.walle.lzcapp:80/
+  upstreams:
+    - location: /
+      backend: http://web:80/
 services:
   web:
-    image: docker.hlmirror.com/alenx/walle-web:2.1
+    # upstream: alenx/walle-web:2.2
+    image: docker.1ms.run/alenx/walle-web:2.2
     depends_on:
       - python
   python:
-    image: docker.hlmirror.com/alenx/walle-python:2.1
+    # upstream: alenx/walle-python:2.2
+    image: docker.1ms.run/alenx/walle-python:2.2
     environment:
       - MYSQL_USER=root
-      - MYSQL_PASSWORD=walle
+      - MYSQL_PASSWORD={{ stable_secret "mysql_password" }}
       - MYSQL_DATABASE=walle
-      - MYSQL_ROOT_PASSWORD=walle
+      - MYSQL_ROOT_PASSWORD={{ stable_secret "mysql_password" }}
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
-    command: bash -c "cd /opt/walle_home/ && /bin/bash admin.sh migration &&  python
-      waller.py"
+    command: bash -c "cd /opt/walle_home/ && /bin/bash admin.sh migration && python waller.py"
     depends_on:
       - db
     binds:
@@ -40,17 +32,18 @@ services:
       - /lzcapp/var/logs:/opt/walle_home/logs/
       - /lzcapp/var/.ssh:/root/.ssh/
   db:
-    image: registry.lazycat.cloud/mysql
+    # upstream: mysql:8.0.46
+    image: docker.1ms.run/library/mysql:8.0.46
     environment:
-      - MYSQL_PASSWORD=walle
+      - MYSQL_PASSWORD={{ stable_secret "mysql_password" }}
       - MYSQL_DATABASE=walle
-      - MYSQL_ROOT_PASSWORD=walle
+      - MYSQL_ROOT_PASSWORD={{ stable_secret "mysql_password" }}
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     binds:
       - /lzcapp/var/db:/var/lib/mysql
-    health_check:
+    healthcheck:
       test:
         - CMD-SHELL
         - mysqladmin ping -h db -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
