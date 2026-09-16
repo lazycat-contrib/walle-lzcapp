@@ -32,7 +32,7 @@ services:
       - /lzcapp/var/logs:/opt/walle_home/logs/
       - /lzcapp/var/.ssh:/root/.ssh/
   db:
-    # upstream: mysql:8.0.46
+    # upstream: library/mysql:8.0.46
     image: docker.1ms.run/library/mysql:8.0.46
     environment:
       - MYSQL_PASSWORD={{ stable_secret "mysql_password" }}
